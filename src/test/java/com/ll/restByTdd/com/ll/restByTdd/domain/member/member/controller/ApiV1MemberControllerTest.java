@@ -1,5 +1,6 @@
 package com.ll.restByTdd.com.ll.restByTdd.domain.member.member.controller;
 
+import com.ll.restByTdd.domain.member.member.controller.ApiV1MemberController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -30,6 +32,8 @@ public class ApiV1MemberControllerTest {
                 .andDo(print());
 
         resultActions
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("join"))
                 .andExpect(status().isCreated());
     }
 }
