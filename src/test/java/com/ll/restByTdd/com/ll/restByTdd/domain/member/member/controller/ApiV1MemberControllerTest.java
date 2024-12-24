@@ -1,6 +1,8 @@
 package com.ll.restByTdd.com.ll.restByTdd.domain.member.member.controller;
 
 import com.ll.restByTdd.domain.member.member.controller.ApiV1MemberController;
+import com.ll.restByTdd.domain.member.member.entity.Member;
+import com.ll.restByTdd.domain.member.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 public class ApiV1MemberControllerTest {
+    @Autowired
+    MemberService memberService;
     @Autowired
     private MockMvc mvc;
 
@@ -50,5 +55,8 @@ public class ApiV1MemberControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.resultCode").value("201-1"))
                 .andExpect(jsonPath("$.msg").value("무명님 환영합니다. 회원가입이 완료되었습니다."));
+
+        Member member = memberService.findByUsername("usernew").get();
+        assertThat(member.getNickname()).isEqualTo("무명");
     }
 }
