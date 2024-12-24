@@ -32,7 +32,7 @@ public class ApiV1MemberController {
     public RsData<Void> join() {
         return new RsData<>(
                 "201-1",
-                "무명님 환영합니다."
+                "무명님 환영합니다. 회원가입이 완료되었습니다."
         );
     }
 }
