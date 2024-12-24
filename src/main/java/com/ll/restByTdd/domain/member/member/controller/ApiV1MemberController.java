@@ -1,5 +1,6 @@
 package com.ll.restByTdd.domain.member.member.controller;
 
+import com.ll.restByTdd.domain.member.member.dto.MemberDto;
 import com.ll.restByTdd.domain.member.member.entity.Member;
 import com.ll.restByTdd.domain.member.member.service.MemberService;
 import com.ll.restByTdd.global.rsData.RsData;
@@ -23,14 +24,15 @@ public class ApiV1MemberController {
     }
 
     @PostMapping("/join")
-    public RsData<Void> join(
+    public RsData<MemberDto> join(
             @RequestBody MemberJoinReqBody reqBody
     ) {
         Member member = memberService.join(reqBody.username, reqBody.password, reqBody.nickname);
 
         return new RsData<>(
                 "201-1",
-                "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName())
+                "%s님 환영합니다. 회원가입이 완료되었습니다.".formatted(member.getName()),
+                new MemberDto(member)
         );
     }
 }
