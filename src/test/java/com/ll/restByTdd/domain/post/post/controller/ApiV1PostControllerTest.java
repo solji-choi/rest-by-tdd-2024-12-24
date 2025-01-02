@@ -138,8 +138,6 @@ public class ApiV1PostControllerTest {
                 )
                 .andDo(print());
 
-        Post post = postService.findLatest().get();
-
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("write"))
@@ -149,5 +147,30 @@ public class ApiV1PostControllerTest {
                         content-NotBlank-must not be blank
                         title-NotBlank-must not be blank
                         """.stripIndent().trim()));
+    }
+
+    @Test
+    @DisplayName("글 작성, with no author")
+    void t5() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(post("/api/v1/posts/write")
+                        .content("""
+                                {
+                                    "title": "테스트 제목",
+                                    "content": "테스트 내용"
+                                }
+                                """.stripIndent())
+                        .contentType(
+                                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                        )
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-1"))
+                .andExpect(jsonPath("$.msg").value("apiKey를 입력해주세요."));
     }
 }
