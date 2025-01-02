@@ -49,10 +49,6 @@ public class PostService {
         postRepository.flush();
     }
 
-    public List<Post> findByTitle(String title) {
-        return postRepository.findByTitle(title);
-    }
-
     public Optional<Post> findLatest() {
         return postRepository.findFirstByOrderByIdDesc();
     }

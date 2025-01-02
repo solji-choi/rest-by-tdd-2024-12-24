@@ -23,7 +23,7 @@ public class ApiV1PostController {
         return new PostDto(postService.findById(id).get());
     }
 
-    record PostWirteReqBody(
+    record PostWriteReqBody(
             @NotBlank
             String title,
 
@@ -33,7 +33,7 @@ public class ApiV1PostController {
 
     @PostMapping("/write")
     public RsData<PostDto> write(
-            @RequestBody @Valid PostWirteReqBody reqBody
+            @RequestBody @Valid PostWriteReqBody reqBody
     ) {
         Member author = rq.checkAuthentication();
 
