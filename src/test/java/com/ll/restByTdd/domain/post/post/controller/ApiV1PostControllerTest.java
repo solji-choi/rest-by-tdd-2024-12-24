@@ -63,8 +63,25 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성")
+    @DisplayName("존재하지 않는 1000000번글 조회, 404")
     void t2() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/1000000")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("404-1"))
+                .andExpect(jsonPath("$.msg").value("해당 데이터가 존재하지 않습니다."));
+    }
+
+    @Test
+    @DisplayName("글 작성")
+    void t3() throws Exception {
         Member author = memberService.findByUsername("user1").get();
 
         ResultActions resultActions = mvc
