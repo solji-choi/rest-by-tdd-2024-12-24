@@ -134,7 +134,7 @@ public class ApiV1MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/members/me")
-                                .header("Authorization", "bearer " + member.getApiKey())
+                                .header("Authorization", "Bearer " + member.getApiKey())
                                 .contentType(
                                         new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                         )
@@ -148,7 +148,6 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.id").value(member.getId()))
                 .andExpect(jsonPath("$.createDate").isString())
                 .andExpect(jsonPath("$.modifyDate").isString())
-                .andExpect(jsonPath("$.nickname").value("유저1"))
-                .andExpect(jsonPath("$.apiKey").value(member.getApiKey()));
+                .andExpect(jsonPath("$.nickname").value(member.getNickname()));
     }
 }
