@@ -1,5 +1,7 @@
 package com.ll.restByTdd.domain.post.post.controller;
 
+import com.ll.restByTdd.domain.member.member.entity.Member;
+import com.ll.restByTdd.domain.member.member.service.MemberService;
 import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import org.hamcrest.Matchers;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -28,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApiV1PostControllerTest {
     @Autowired
     PostService postService;
+    @Autowired
+    MemberService memberService;
     @Autowired
     private MockMvc mvc;
 
@@ -60,8 +65,11 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 작성")
     void t2() throws Exception {
+        Member author = memberService.findByUsername("user1").get();
+
         ResultActions resultActions = mvc
-                .perform(post("/api/v1/posts/create")
+                .perform(post("/api/v1/posts/write")
+                        .header("Authorization", "Bearer " + author.getApiKey())
                         .content("""
                                 {
                                     "title": "테스트 제목",
@@ -74,20 +82,21 @@ public class ApiV1PostControllerTest {
                 )
                 .andDo(print());
 
-        Post post = postService.findBySubject("테스트 제목").get(0);
+        Post post = postService.findLatest().get();
+
+        assertThat(post.getAuthor()).isEqualTo(author);
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("create"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.resultCode").value("201-1"))
-                .andExpect(jsonPath("$.data.id").value(post.getId()))
-                .andExpect(jsonPath("$.data.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
-                .andExpect(jsonPath("$.data.modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
-                .andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
-                .andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getName()))
-                .andExpect(jsonPath("$.data.title").value(post.getTitle()))
-                .andExpect(jsonPath("$.data.content").value(post.getContent()));
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.authorId").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.authorName").value(post.getAuthor().getName()))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()));
     }
 
 }
