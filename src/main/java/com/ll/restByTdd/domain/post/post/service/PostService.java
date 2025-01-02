@@ -48,4 +48,8 @@ public class PostService {
     public void flush() {
         postRepository.flush();
     }
+
+    public List<Post> findBySubject(String subject) {
+        return postRepository.findBySubject(subject);
+    }
 }
