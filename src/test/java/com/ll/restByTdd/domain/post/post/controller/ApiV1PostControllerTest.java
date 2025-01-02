@@ -1,6 +1,5 @@
-package com.ll.restByTdd.com.ll.restByTdd.domain.member.member.controller;
+package com.ll.restByTdd.domain.post.post.controller;
 
-import com.ll.restByTdd.domain.post.post.controller.ApiV1PostController;
 import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import org.hamcrest.Matchers;
@@ -35,7 +34,7 @@ public class ApiV1PostControllerTest {
     @DisplayName("1번글 조회")
     void t1() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/api/v1/post/1")
+                .perform(get("/api/v1/posts/1")
                         .contentType(
                                 new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                         )
