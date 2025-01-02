@@ -17,10 +17,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -85,7 +85,7 @@ public class ApiV1PostControllerTest {
         Member author = memberService.findByUsername("user1").get();
 
         ResultActions resultActions = mvc
-                .perform(post("/api/v1/posts/write")
+                .perform(post("/api/v1/posts")
                         .header("Authorization", "Bearer " + author.getApiKey())
                         .content("""
                                 {
@@ -124,7 +124,7 @@ public class ApiV1PostControllerTest {
         Member author = memberService.findByUsername("user1").get();
 
         ResultActions resultActions = mvc
-                .perform(post("/api/v1/posts/write")
+                .perform(post("/api/v1/posts")
                         .header("Authorization", "Bearer " + author.getApiKey())
                         .content("""
                                 {
@@ -153,7 +153,7 @@ public class ApiV1PostControllerTest {
     @DisplayName("글 작성, with no author")
     void t5() throws Exception {
         ResultActions resultActions = mvc
-                .perform(post("/api/v1/posts/write")
+                .perform(post("/api/v1/posts")
                         .content("""
                                 {
                                     "title": "테스트 제목",
@@ -172,5 +172,43 @@ public class ApiV1PostControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("apiKey를 입력해주세요."));
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    void t6() throws Exception {
+        Member author = memberService.findByUsername("user1").get();
+        Post post = postService.findById(1).get();
+
+        LocalDateTime oldModifyDate = post.getModifyDate();
+
+                ResultActions resultActions = mvc
+                .perform(put("/api/v1/posts/1")
+                        .header("Authorization", "Bearer " + author.getApiKey())
+                        .content("""
+                                {
+                                    "title": "축구하실분 계신가요?",
+                                    "content": "14시까지 22명을 모아야 진행이 됩니다."
+                                }
+                                """.stripIndent())
+                        .contentType(
+                                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                        )
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(post.getId())))
+                .andExpect(jsonPath("$.data.id").value(post.getId()))
+                .andExpect(jsonPath("$.data.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.data.modifyDate").value(Matchers.not(Matchers.startsWith(oldModifyDate.toString().substring(0, 25)))))
+                .andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getName()))
+                .andExpect(jsonPath("$.data.title").value("축구하실분 계신가요?"))
+                .andExpect(jsonPath("$.data.content").value("14시까지 22명을 모아야 진행이 됩니다."));
     }
 }

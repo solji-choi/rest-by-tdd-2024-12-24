@@ -9,6 +9,7 @@ import com.ll.restByTdd.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,7 +32,7 @@ public class ApiV1PostController {
             String content
     ) {}
 
-    @PostMapping("/write")
+    @PostMapping
     public RsData<PostDto> write(
             @RequestBody @Valid PostWriteReqBody reqBody
     ) {
@@ -44,5 +45,23 @@ public class ApiV1PostController {
                 "%d번 글이 작성되었습니다.".formatted(post.getId()),
                 new PostDto(post)
         );
+    }
+
+    record PostModifyReqBody(
+            @NotBlank
+            @Length(min = 2, max = 100)
+            String title,
+            @NotBlank
+            @Length(min = 2, max = 10000000)
+            String content
+    ) {
+    }
+
+    @PutMapping("/{id}")
+    public RsData<PostDto> modify(
+            @PathVariable long id,
+            @RequestBody @Valid PostModifyReqBody reqBody
+    ) {
+        return null;
     }
 }
