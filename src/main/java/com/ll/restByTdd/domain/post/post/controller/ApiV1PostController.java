@@ -5,6 +5,7 @@ import com.ll.restByTdd.domain.post.post.dto.PostDto;
 import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import com.ll.restByTdd.global.rq.Rq;
+import com.ll.restByTdd.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +32,17 @@ public class ApiV1PostController {
     ) {}
 
     @PostMapping("/write")
-    public PostDto write(
+    public RsData<PostDto> write(
             @RequestBody @Valid PostWirteReqBody reqBody
     ) {
         Member author = rq.checkAuthentication();
 
         Post post = postService.write(author, reqBody.title, reqBody.content);
 
-        return new PostDto(post);
+        return new RsData<>(
+                "201-1",
+                "%d번 글이 작성되었습니다.".formatted(post.getId()),
+                new PostDto(post)
+        );
     }
 }
