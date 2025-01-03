@@ -490,7 +490,7 @@ public class ApiV1PostControllerTest {
     @DisplayName("다건 조회")
     void t17() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/api/v1/posts")
+                .perform(get("/api/v1/posts?page=1&pageSize=10")
                         .contentType(
                                 new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                         )
@@ -502,7 +502,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("items"))
                 .andExpect(status().isOk());
 
-        List<Post> posts = postService.findAllByOrderByIdDesc();
+        List<Post> posts = postService.findByListedPaged(true, 1, 10);
 
         for(int i = 0; i < posts.size(); i++) {
             Post post = posts.get(i);
