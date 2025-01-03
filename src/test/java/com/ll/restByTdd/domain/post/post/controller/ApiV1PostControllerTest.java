@@ -175,8 +175,58 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 수정")
+    @DisplayName("비공개글 6번글 조회, with 작성자")
     void t6() throws Exception {
+        Member author = memberService.findByUsername("user4").get();
+
+        ResultActions resultActions = mvc
+                .perform(get("/api/v1/posts/6")
+                        .header("Authorization", "Bearer " + author.getApiKey())
+                        .contentType(
+                                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                        )
+                )
+                .andDo(print());
+
+        Post post = postService.findById(6).get();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.authorId").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.authorName").value(post.getAuthor().getName()))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()));
+    }
+
+    @Test
+    @DisplayName("비공개글 6번글 조회, with no author")
+    void t7() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/api/v1/posts/6")
+                        .contentType(
+                                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                        )
+                )
+                .andDo(print());
+
+        Post post = postService.findById(6).get();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-1"))
+                .andExpect(jsonPath("$.msg").value("apiKey를 입력해주세요."));
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    void t8() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -214,7 +264,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with no input")
-    void t7() throws Exception {
+    void t9() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -250,7 +300,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with no actor")
-    void t8() throws Exception {
+    void t10() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -280,7 +330,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with wrong actor")
-    void t9() throws Exception {
+    void t11() throws Exception {
         Member author = memberService.findByUsername("user2").get();
         Post post = postService.findById(1).get();
 
@@ -311,7 +361,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제")
-    void t10() throws Exception {
+    void t12() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -336,7 +386,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with not exist post id")
-    void t11() throws Exception {
+    void t13() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -359,7 +409,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with no author")
-    void t12() throws Exception {
+    void t14() throws Exception {
         Post post = postService.findById(1).get();
 
         ResultActions resultActions = mvc
@@ -380,7 +430,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with no permission")
-    void t13() throws Exception {
+    void t15() throws Exception {
         Member author = memberService.findByUsername("user2").get();
         Post post = postService.findById(1).get();
 
