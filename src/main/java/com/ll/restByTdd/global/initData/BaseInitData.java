@@ -111,14 +111,14 @@ public class BaseInitData {
                 "발야구 하실 분?",
                 "22시 까지 18명을 모아야 합니다.",
                 false,
-                true
+                false
         );
 
         Post post7 = postService.write(
                 memberUser4,
                 "발야구 하실 분?",
                 "22시 까지 18명을 모아야 합니다.",
-                false,
+                true,
                 false
         );
 
@@ -126,8 +126,8 @@ public class BaseInitData {
                 memberUser4,
                 "발야구 하실 분?",
                 "22시 까지 18명을 모아야 합니다.",
-                true,
-                false
+                false,
+                true
         );
     }
 }
