@@ -2,6 +2,7 @@ package com.ll.restByTdd.domain.post.post.controller;
 
 import com.ll.restByTdd.domain.member.member.entity.Member;
 import com.ll.restByTdd.domain.post.post.dto.PostDto;
+import com.ll.restByTdd.domain.post.post.dto.PostWithContentDto;
 import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import com.ll.restByTdd.global.rq.Rq;
@@ -32,7 +33,7 @@ public class ApiV1PostController {
     }
 
     @GetMapping("/{id}")
-    public PostDto item(@PathVariable long id) {
+    public PostWithContentDto item(@PathVariable long id) {
         Post post = postService.findById(id).get();
 
         if(!post.isPublished()) {
@@ -41,7 +42,7 @@ public class ApiV1PostController {
             post.checkActorCanRead(author);
         }
 
-        return new PostDto(postService.findById(id).get());
+        return new PostWithContentDto(postService.findById(id).get());
     }
 
     record PostWriteReqBody(
@@ -56,7 +57,7 @@ public class ApiV1PostController {
     ) {}
 
     @PostMapping
-    public RsData<PostDto> write(
+    public RsData<PostWithContentDto> write(
             @RequestBody @Valid PostWriteReqBody reqBody
     ) {
         Member author = rq.checkAuthentication();
@@ -66,7 +67,7 @@ public class ApiV1PostController {
         return new RsData<>(
                 "201-1",
                 "%d번 글이 작성되었습니다.".formatted(post.getId()),
-                new PostDto(post)
+                new PostWithContentDto(post)
         );
     }
 
@@ -85,7 +86,7 @@ public class ApiV1PostController {
 
     @PutMapping("/{id}")
     @Transactional
-    public RsData<PostDto> modify(
+    public RsData<PostWithContentDto> modify(
             @PathVariable long id,
             @RequestBody @Valid PostModifyReqBody reqBody
     ) {
@@ -100,7 +101,7 @@ public class ApiV1PostController {
         return new RsData<>(
                 "200-1",
                 "%d번 글이 수정되었습니다.".formatted(post.getId()),
-                new PostDto(post)
+                new PostWithContentDto(post)
         );
     }
 
