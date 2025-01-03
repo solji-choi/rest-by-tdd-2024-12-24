@@ -225,8 +225,32 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 수정")
+    @DisplayName("비공개글 6번글 조회, with no permission")
     void t8() throws Exception {
+        Member actor = memberService.findByUsername("user1").get();
+
+        ResultActions resultActions = mvc
+                .perform(get("/api/v1/posts/6")
+                        .header("Authorization", "Bearer " + actor.getApiKey())
+                        .contentType(
+                                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                        )
+                )
+                .andDo(print());
+
+        Post post = postService.findById(6).get();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("비공개글은 작성자만 볼 수 있습니다."));
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    void t9() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -264,7 +288,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with no input")
-    void t9() throws Exception {
+    void t10() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -300,7 +324,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with no actor")
-    void t10() throws Exception {
+    void t11() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -330,7 +354,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정, with wrong actor")
-    void t11() throws Exception {
+    void t12() throws Exception {
         Member author = memberService.findByUsername("user2").get();
         Post post = postService.findById(1).get();
 
@@ -355,13 +379,13 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("modify"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.resultCode").value("403-2"))
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
                 .andExpect(jsonPath("$.msg").value("작성자만 글을 수정할 수 있습니다."));
     }
 
     @Test
     @DisplayName("글 삭제")
-    void t12() throws Exception {
+    void t13() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -386,7 +410,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with not exist post id")
-    void t13() throws Exception {
+    void t14() throws Exception {
         Member author = memberService.findByUsername("user1").get();
         Post post = postService.findById(1).get();
 
@@ -409,7 +433,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with no author")
-    void t14() throws Exception {
+    void t15() throws Exception {
         Post post = postService.findById(1).get();
 
         ResultActions resultActions = mvc
@@ -430,7 +454,7 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제, with no permission")
-    void t15() throws Exception {
+    void t16() throws Exception {
         Member author = memberService.findByUsername("user2").get();
         Post post = postService.findById(1).get();
 
@@ -447,7 +471,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.resultCode").value("403-2"))
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
                 .andExpect(jsonPath("$.msg").value("작성자만 글을 삭제할 수 있습니다."));
     }
 }
