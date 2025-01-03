@@ -22,6 +22,14 @@ public class ApiV1PostController {
 
     @GetMapping("/{id}")
     public PostDto item(@PathVariable long id) {
+        Post post = postService.findById(id).get();
+
+        if(!post.isPublished()) {
+            Member author = rq.checkAuthentication();
+
+            post.checkActorCanRead(author);
+        }
+
         return new PostDto(postService.findById(id).get());
     }
 
