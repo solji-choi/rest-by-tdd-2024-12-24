@@ -508,15 +508,15 @@ public class ApiV1PostControllerTest {
             Post post = posts.get(i);
 
             resultActions
-                    .andExpect(jsonPath("$[%d].id").value(post.getId()))
-                    .andExpect(jsonPath("$[%d].createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
-                    .andExpect(jsonPath("$[%d].modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
-                    .andExpect(jsonPath("$[%d].authorId").value(post.getAuthor().getId()))
-                    .andExpect(jsonPath("$[%d].authorName").value(post.getAuthor().getName()))
-                    .andExpect(jsonPath("$[%d].title").value(post.getTitle()))
-                    .andExpect(jsonPath("$[%d].content").value(post.getContent()))
-                    .andExpect(jsonPath("$[%d].published").value(post.isPublished()))
-                    .andExpect(jsonPath("$[%d].listed").value(post.isListed()));
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+                    .andExpect(jsonPath("$[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$[%d].content".formatted(i)).doesNotExist())
+                    .andExpect(jsonPath("$[%d].published".formatted(i)).value(post.isPublished()))
+                    .andExpect(jsonPath("$[%d].listed".formatted(i)).value(post.isListed()));
         }
     }
 }
