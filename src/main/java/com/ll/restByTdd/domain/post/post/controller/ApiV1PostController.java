@@ -38,7 +38,10 @@ public class ApiV1PostController {
             String title,
 
             @NotBlank
-            String content
+            String content,
+
+            boolean published,
+            boolean listed
     ) {}
 
     @PostMapping
@@ -47,7 +50,7 @@ public class ApiV1PostController {
     ) {
         Member author = rq.checkAuthentication();
 
-        Post post = postService.write(author, reqBody.title, reqBody.content, true, true);
+        Post post = postService.write(author, reqBody.title, reqBody.content, reqBody.published, reqBody.listed);
 
         return new RsData<>(
                 "201-1",
@@ -62,7 +65,10 @@ public class ApiV1PostController {
             String title,
             @NotBlank
             @Length(min = 2, max = 10000000)
-            String content
+            String content,
+
+            boolean published,
+            boolean listed
     ) {
     }
 
@@ -76,7 +82,7 @@ public class ApiV1PostController {
         Post post = postService.findById(id).get();
 
         post.checkActorCanModify(author);
-        postService.modify(post, reqBody.title, reqBody.content);
+        postService.modify(post, reqBody.title, reqBody.content, reqBody.published, reqBody.listed);
 
         postService.flush();
 
