@@ -78,4 +78,18 @@ public class ApiV1PostController {
                 new PostDto(post)
         );
     }
+
+    @DeleteMapping("/{id}")
+    public RsData<Void> delete(@PathVariable long id) {
+        Member author = rq.checkAuthentication();
+        Post post = postService.findById(id).get();
+
+        post.checkActorCanDelete(author);
+        postService.delete(post);
+
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 삭제되었습니다.".formatted(post.getId())
+        );
+    }
 }
