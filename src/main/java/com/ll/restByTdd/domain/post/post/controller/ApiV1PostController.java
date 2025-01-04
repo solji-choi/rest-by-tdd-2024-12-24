@@ -35,6 +35,19 @@ public class ApiV1PostController {
         );
     }
 
+    @GetMapping("/mine")
+    public PageDto<PostDto> mine(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        Member author = rq.checkAuthentication();
+
+        return new PageDto<>(
+                postService.findByAuthorPaged(author, page, pageSize)
+                        .map(PostDto::new)
+        );
+    }
+
     @GetMapping("/{id}")
     public PostWithContentDto item(@PathVariable long id) {
         Post post = postService.findById(id).get();
