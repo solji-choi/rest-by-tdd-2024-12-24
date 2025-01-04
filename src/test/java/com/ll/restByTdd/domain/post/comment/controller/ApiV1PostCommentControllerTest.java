@@ -1,8 +1,7 @@
-package com.ll.restByTdd.domain.post.comment;
+package com.ll.restByTdd.domain.post.comment.controller;
 
 import com.ll.restByTdd.domain.member.member.service.MemberService;
-import com.ll.restByTdd.domain.post.post.controller.ApiV1PostController;
-import com.ll.restByTdd.domain.post.post.entity.Post;
+import com.ll.restByTdd.domain.post.comment.entity.PostComment;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -17,11 +16,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -36,28 +35,34 @@ public class ApiV1PostCommentControllerTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("1번글 조회")
+    @DisplayName("다건 조회")
     void t1() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/api/v1/posts/1")
+                .perform(get("/api/v1/posts/1/comments")
                         .contentType(
                                 new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                         )
                 )
                 .andDo(print());
 
-        Post post = postService.findById(1).get();
-
         resultActions
-                .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("item"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(post.getId()))
-                .andExpect(jsonPath("$.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
-                .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
-                .andExpect(jsonPath("$.authorId").value(post.getAuthor().getId()))
-                .andExpect(jsonPath("$.authorName").value(post.getAuthor().getName()))
-                .andExpect(jsonPath("$.title").value(post.getTitle()))
-                .andExpect(jsonPath("$.content").value(post.getContent()));
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("items"))
+                .andExpect(status().isOk());
+
+        List<PostComment> comments = postService
+                .findById(1).get().getComments();
+
+        for(int i = 0; i < comments.size(); i++) {
+            PostComment postComment = comments.get(i);
+
+            resultActions
+                    .andExpect(jsonPath("$.items[%d].id".formatted(i)).value(postComment.getId()))
+                    .andExpect(jsonPath("$.items[%d].createDate".formatted(i)).value(Matchers.startsWith(postComment.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].modifyDate".formatted(i)).value(Matchers.startsWith(postComment.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].authorId".formatted(i)).value(postComment.getAuthor().getId()))
+                    .andExpect(jsonPath("$.items[%d].authorName".formatted(i)).value(postComment.getAuthor().getName()))
+                    .andExpect(jsonPath("$.items[%d].content".formatted(i)).value(postComment.getContent()));
+        }
     }
 }
